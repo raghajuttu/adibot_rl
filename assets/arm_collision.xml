@@ -1,0 +1,162 @@
+<!--
+  Robot self-collision for the box task. The robot's own geoms don't collide with
+  each other (contype 1 / conaffinity 2): MuJoCo turns every mesh into its convex
+  hull, and the base mesh's hull is so big it would swallow both arms. So we list
+  the pairs that matter here instead (generated):
+    - left arm x right arm (link2 ... fingers, 81 pairs): arms can't pass through each other
+    - in each arm, wrist/hand/fingers x link0-3: the hand can't go through its own upper arm
+    - torso_guard (a plain box around the robot's column) x elbow ... fingers
+  None of these touch at the start pose. Include after adibot.xml:
+      <include file="assets/arm_collision.xml"/>
+-->
+<mujoco model="arm_collision">
+  <worldbody>
+    <!-- Box around the white torso shell and the column behind it, from the shell
+         bottom (z 0.84) up to above the head (shell mesh P_Link: x 0.006..0.168, |y| < 0.097).
+         Only seen in the viewer's collision group 3. -->
+    <geom name="torso_guard" type="box" size="0.12 0.09 0.30" pos="0.03 0 1.14"
+          contype="0" conaffinity="0" group="3" rgba="0.3 0.3 0.8 0.3"/>
+  </worldbody>
+  <contact>
+    <!-- left arm x right arm -->
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link2_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link3_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link4_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link5_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_right_right_finger_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link4_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link5_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link6_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_link7_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_hand_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_right_right_finger_collision"/>
+    <!-- hand x own upper arm -->
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_left_link0_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_left_link1_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_left_link2_collision"/>
+    <pair geom1="openarm_left_link6_collision" geom2="openarm_left_link3_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_left_link0_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_left_link1_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_left_link2_collision"/>
+    <pair geom1="openarm_left_link7_collision" geom2="openarm_left_link3_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_left_link0_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_left_link1_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_left_link2_collision"/>
+    <pair geom1="openarm_left_hand_collision" geom2="openarm_left_link3_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_left_link0_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_left_link1_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_left_link2_collision"/>
+    <pair geom1="openarm_left_left_finger_collision" geom2="openarm_left_link3_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_left_link0_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_left_link1_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_left_link2_collision"/>
+    <pair geom1="openarm_left_right_finger_collision" geom2="openarm_left_link3_collision"/>
+    <pair geom1="openarm_right_link6_collision" geom2="openarm_right_link0_collision"/>
+    <pair geom1="openarm_right_link6_collision" geom2="openarm_right_link1_collision"/>
+    <pair geom1="openarm_right_link6_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_right_link6_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_right_link7_collision" geom2="openarm_right_link0_collision"/>
+    <pair geom1="openarm_right_link7_collision" geom2="openarm_right_link1_collision"/>
+    <pair geom1="openarm_right_link7_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_right_link7_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_right_hand_collision" geom2="openarm_right_link0_collision"/>
+    <pair geom1="openarm_right_hand_collision" geom2="openarm_right_link1_collision"/>
+    <pair geom1="openarm_right_hand_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_right_hand_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_right_left_finger_collision" geom2="openarm_right_link0_collision"/>
+    <pair geom1="openarm_right_left_finger_collision" geom2="openarm_right_link1_collision"/>
+    <pair geom1="openarm_right_left_finger_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_right_left_finger_collision" geom2="openarm_right_link3_collision"/>
+    <pair geom1="openarm_right_right_finger_collision" geom2="openarm_right_link0_collision"/>
+    <pair geom1="openarm_right_right_finger_collision" geom2="openarm_right_link1_collision"/>
+    <pair geom1="openarm_right_right_finger_collision" geom2="openarm_right_link2_collision"/>
+    <pair geom1="openarm_right_right_finger_collision" geom2="openarm_right_link3_collision"/>
+    <!-- torso column x arms -->
+    <pair geom1="torso_guard" geom2="openarm_left_link3_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_link4_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_link5_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_link6_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_link7_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_hand_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_left_finger_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_left_right_finger_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_link3_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_link4_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_link5_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_link6_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_link7_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_hand_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_left_finger_collision"/>
+    <pair geom1="torso_guard" geom2="openarm_right_right_finger_collision"/>
+  </contact>
+</mujoco>

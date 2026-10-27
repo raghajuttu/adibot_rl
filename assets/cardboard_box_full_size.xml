@@ -1,0 +1,107 @@
+<!--
+  Corrugated cardboard box with a hinged lid. Include it from a scene in the
+  parent folder (texture path is relative to that folder):
+      <include file="assets/cardboard_box.xml"/>
+
+  Airplane (mailer) box. Inside size 0.22 m (x, depth) x 0.23 m (y, width,
+  hinge side) x 0.095 m tall; thin 3 mm walls, outside 0.226 x 0.236 x 0.098 m.
+  Rigid (not deformable), about 0.09 kg. The box is free to slide/tip (freejoint) and sits
+  on the table top (z = 0.72), 40 cm in front of the robot (moved closer so the
+  right hand can reach the open lid's front flap).
+
+  Lid: hinged along the top edge of the BACK wall (far from the robot).
+    joint "lid_hinge":  0 rad = closed, positive = opening, max 2.1 rad (120 deg, where the real lid stays open).
+    Past ~90 deg the lid's weight keeps it open; below that it falls shut.
+
+  Lid flaps. All three are meant to be tucked inside the walls. They don't
+  go in by themselves: their creases hold them tilted outwards.
+    - Lid dropped:  it lands on the flaps and stays ~5 deg open.
+    - Lid pushed down (~1 N at the front edge): it closes, but loosely - the
+      side flaps fold out over the side walls, the front flap stays tilted
+      over the front wall, and a small pull (0.3 N) opens it again.
+    - Flaps tucked in (side flaps straight down inside the side walls, front
+      flap folded 90 deg inside the front wall): the lid sits flat and is
+      locked by friction - pulling the lid up lifts the whole box.
+    flap_hinge        front tuck flap, 21.8 x 8.5 cm, crease on the underside
+                      of the lid's front edge, just inside the front wall.
+                      0 = in line with the lid, positive = folding down,
+                      1.57 = tucked. Crease spring rests it at ~0.8 rad.
+    side_flap_left /  side flaps: trapezoids, 20 cm along the crease, 14 cm at
+    side_flap_right   the free edge, 7.5 cm tall. Creases on the lid's side
+                      edges, just inside the side walls. 0 = straight down
+                      (tucked), positive = tilting outwards. Crease spring
+                      rests them at ~0.35 rad (20 deg) outwards.
+  Flap sizes are worked out to fit inside the box when tucked:
+    side flaps 20 cm < 22 cm inside depth, 7.5 cm < 9.5 cm inside height;
+    front flap 21.8 cm fits between the tucked side flaps (22.2 cm),
+    8.5 cm < 9.5 cm inside height.
+
+  Sites for task code / rewards:
+    lid_handle   middle of the lid's free (front) edge
+    flap_edge    middle of the front flap's free edge
+    box_top      centre of the box opening (where the lid ends up when closed)
+    box_left_side  just outside the middle of the left (+y) wall (v1/v2 holding target)
+    box_brace    just outside the front-left corner, where the left hand braces the box (v3)
+-->
+<mujoco model="cardboard_box">
+  <asset>
+    <texture name="cardboard" type="2d" file="assets/textures/cardboard.png"/>
+    <material name="cardboard" texture="cardboard" texuniform="true" texrepeat="4 4" specular="0.05" shininess="0.05"/>
+    <!-- side flap: trapezoid plate, crease along x at z = 0, free edge at z = -0.075 -->
+    <mesh name="side_flap" vertex="-0.10 -0.0015 0       0.10 -0.0015 0       -0.10 0.0015 0       0.10 0.0015 0
+                                    -0.07 -0.0015 -0.075  0.07 -0.0015 -0.075  -0.07 0.0015 -0.075  0.07 0.0015 -0.075"/>
+    <material name="cardboard_inside" texture="cardboard" texuniform="true" texrepeat="4 4" rgba="0.85 0.85 0.85 1" specular="0"/>
+  </asset>
+
+  <default>
+    <default class="cardboard">
+      <!-- Thin board, 3 mm. Density tuned so the whole box is ~0.09 kg. -->
+      <geom type="box" density="150" material="cardboard" contype="3" conaffinity="3"
+            friction="0.5 0.005 0.0001" solref="0.004 1"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="box" pos="0.40 0 0.721">
+      <freejoint name="box_free"/>
+      <!-- bottom -->
+      <geom name="box_bottom" class="cardboard" size="0.113 0.118 0.0015" pos="0 0 0.0015" material="cardboard_inside"/>
+      <!-- walls: front (robot side, -x), back (+x), left (+y), right (-y) -->
+      <geom name="box_front" class="cardboard" size="0.0015 0.118 0.049" pos="-0.1115 0 0.049"/>
+      <geom name="box_back"  class="cardboard" size="0.0015 0.118 0.049" pos=" 0.1115 0 0.049"/>
+      <geom name="box_left"  class="cardboard" size="0.11 0.0015 0.049" pos="0  0.1165 0.049"/>
+      <geom name="box_right" class="cardboard" size="0.11 0.0015 0.049" pos="0 -0.1165 0.049"/>
+      <site name="box_top" pos="0 0 0.1" size="0.006" rgba="0 0.6 1 0.6"/>
+      <site name="box_brace" pos="-0.125 0.125 0.05" size="0.008" rgba="1 0.9 0 0.8"/>
+      <site name="box_left_side" pos="0 0.125 0.05" size="0.008" rgba="0.8 0.2 1 0.8"/>
+
+      <!-- lid: frame sits on the hinge line (top of back wall) -->
+      <body name="lid" pos="0.113 0 0.0995">
+        <joint name="lid_hinge" type="hinge" axis="0 1 0" range="0 2.1"
+               damping="0.005" frictionloss="0.002" armature="0.0005"/>
+        <geom name="lid" class="cardboard" size="0.113 0.118 0.0015" pos="-0.113 0 0"/>
+        <site name="lid_handle" pos="-0.226 0 0" size="0.008" rgba="1 0.3 0 0.8"/>
+
+        <!-- front tuck flap: crease on the lid's underside, just inside the front wall -->
+        <body name="flap" pos="-0.2213 0 0">
+          <joint name="flap_hinge" type="hinge" axis="0 -1 0" range="-0.5 1.7"
+                 stiffness="0.005" springref="0.8" damping="0.002" armature="0.0002"/>
+          <geom name="flap" class="cardboard" size="0.0425 0.109 0.0015" pos="-0.0425 0 0"/>
+          <site name="flap_edge" pos="-0.085 0 0" size="0.006" rgba="0.2 0.8 0.2 0.8"/>
+        </body>
+
+        <!-- side flaps: creases on the lid's underside, just inside the side walls -->
+        <body name="side_flap_left" pos="-0.113 0.1125 0">
+          <joint name="side_flap_left" type="hinge" axis="1 0 0" range="-0.3 1.6"
+                 stiffness="0.01" springref="0.35" damping="0.002" armature="0.0002"/>
+          <geom name="side_flap_left" class="cardboard" type="mesh" mesh="side_flap"/>
+        </body>
+        <body name="side_flap_right" pos="-0.113 -0.1125 0">
+          <joint name="side_flap_right" type="hinge" axis="-1 0 0" range="-0.3 1.6"
+                 stiffness="0.01" springref="0.35" damping="0.002" armature="0.0002"/>
+          <geom name="side_flap_right" class="cardboard" type="mesh" mesh="side_flap"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

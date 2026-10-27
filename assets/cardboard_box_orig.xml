@@ -1,0 +1,54 @@
+<!--
+  Corrugated cardboard box with a hinged lid. Include it from a scene in the
+  parent folder (texture path is relative to that folder):
+      <include file="assets/cardboard_box.xml"/>
+
+  Outer size: 0.22 m (x, depth) x 0.30 m (y, width) x 0.16 m tall,
+  5 mm walls, about 0.2 kg. The box is free to slide/tip (freejoint) and sits
+  on the table top (z = 0.72), in front of the robot.
+
+  Lid: hinged along the top edge of the BACK wall (far from the robot).
+    joint "lid_hinge":  0 rad = closed, positive = opening, max 2.0 rad (115 deg).
+    Past ~90 deg the lid's weight keeps it open; below that it falls shut.
+
+  Sites for task code / rewards:
+    lid_handle   middle of the lid's free (front) edge
+    box_top      centre of the box opening (where the lid ends up when closed)
+-->
+<mujoco model="cardboard_box">
+  <asset>
+    <texture name="cardboard" type="2d" file="assets/textures/cardboard.png"/>
+    <material name="cardboard" texture="cardboard" texuniform="true" texrepeat="4 4" specular="0.05" shininess="0.05"/>
+    <material name="cardboard_inside" texture="cardboard" texuniform="true" texrepeat="4 4" rgba="0.85 0.85 0.85 1" specular="0"/>
+  </asset>
+
+  <default>
+    <default class="cardboard">
+      <!-- Corrugated board ~0.6 kg/m^2 at 5 mm thick -> 120 kg/m^3. -->
+      <geom type="box" density="120" material="cardboard" contype="3" conaffinity="3"
+            friction="0.5 0.005 0.0001" solref="0.004 1"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="box" pos="0.47 0 0.721">
+      <freejoint name="box_free"/>
+      <!-- bottom -->
+      <geom name="box_bottom" class="cardboard" size="0.11 0.15 0.0025" pos="0 0 0.0025" material="cardboard_inside"/>
+      <!-- walls: front (robot side, -x), back (+x), left (+y), right (-y) -->
+      <geom name="box_front" class="cardboard" size="0.0025 0.15 0.08" pos="-0.1075 0 0.08"/>
+      <geom name="box_back"  class="cardboard" size="0.0025 0.15 0.08" pos=" 0.1075 0 0.08"/>
+      <geom name="box_left"  class="cardboard" size="0.105 0.0025 0.08" pos="0  0.1475 0.08"/>
+      <geom name="box_right" class="cardboard" size="0.105 0.0025 0.08" pos="0 -0.1475 0.08"/>
+      <site name="box_top" pos="0 0 0.163" size="0.006" rgba="0 0.6 1 0.6"/>
+
+      <!-- lid: frame sits on the hinge line (top of back wall) -->
+      <body name="lid" pos="0.11 0 0.1605">
+        <joint name="lid_hinge" type="hinge" axis="0 1 0" range="0 2.0"
+               damping="0.005" frictionloss="0.002" armature="0.0005"/>
+        <geom name="lid" class="cardboard" size="0.11 0.15 0.0025" pos="-0.11 0 0"/>
+        <site name="lid_handle" pos="-0.22 0 0" size="0.008" rgba="1 0.3 0 0.8"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

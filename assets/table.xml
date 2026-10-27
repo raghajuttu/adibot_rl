@@ -1,0 +1,31 @@
+<!--
+  Wooden table, fixed to the floor. Include it from a scene in the parent
+  folder (texture path is relative to that folder):
+      <include file="assets/table.xml"/>
+
+  Size: top 0.90 m (x, depth) x 1.20 m (y, width), surface at z = 0.72 m.
+  Near edge at x = 0.12: the top reaches in over the robot's wheel base (the
+  column is at x < 0.01 at table height), so the box at x = 0.32 sits fully on it.
+  The legs stay at x = 0.36 / 0.98, clear of the wheels (x < 0.315).
+  Contact bits contype/conaffinity = 3 collide with the robot, the floor
+  and other objects.
+-->
+<mujoco model="table">
+  <asset>
+    <texture name="wood" type="2d" file="assets/textures/wood.png"/>
+    <material name="wood" texture="wood" texuniform="true" texrepeat="2 2" specular="0.2" shininess="0.3"/>
+    <material name="table_leg" rgba="0.25 0.25 0.27 1" specular="0.4"/>
+  </asset>
+
+  <worldbody>
+    <body name="table" pos="0.67 0 0">
+      <geom name="table_top" type="box" size="0.45 0.6 0.02" pos="-0.10 0 0.70"
+            material="wood" contype="3" conaffinity="3" friction="0.6 0.005 0.0001"/>
+      <geom name="table_leg_1" type="box" size="0.02 0.02 0.34" pos=" 0.31  0.56 0.34" material="table_leg" contype="3" conaffinity="3"/>
+      <geom name="table_leg_2" type="box" size="0.02 0.02 0.34" pos=" 0.31 -0.56 0.34" material="table_leg" contype="3" conaffinity="3"/>
+      <geom name="table_leg_3" type="box" size="0.02 0.02 0.34" pos="-0.31  0.56 0.34" material="table_leg" contype="3" conaffinity="3"/>
+      <geom name="table_leg_4" type="box" size="0.02 0.02 0.34" pos="-0.31 -0.56 0.34" material="table_leg" contype="3" conaffinity="3"/>
+      <site name="table_surface" pos="0 0 0.72" size="0.005" rgba="0 0 0 0"/>
+    </body>
+  </worldbody>
+</mujoco>

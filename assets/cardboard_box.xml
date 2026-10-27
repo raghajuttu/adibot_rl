@@ -1,0 +1,115 @@
+<!--
+  Corrugated cardboard box with a hinged lid (pizza-box style). Include it from
+  a scene in the parent folder (texture path is relative to that folder):
+      <include file="assets/cardboard_box.xml"/>
+
+  The REAL box used on the robot: inside 16 x 16 x 4 cm.
+  3 mm walls, outside 0.166 x 0.166 x 0.043 m. Rigid. Free to slide/tip
+  (freejoint), on the table top (z = 0.72), 32 cm in front of the robot (close enough
+  for a top-down pinch of the open front flap).
+  Other models: cardboard_box_full_size.xml (airplane box 22 x 23 x 9.5 cm),
+  cardboard_box_70pct.xml (that box at 70 %).
+
+  Lid: hinged along the top edge of the BACK wall (far from the robot).
+    joint "lid_hinge":  0 rad = closed, positive = opening, max 2.1 rad
+    (120 deg, where the real lid stays open). The crease holds the lid wherever
+    it is let go above ~37 deg; below ~35 deg it falls shut by itself.
+
+  Lid flaps: three straight-edged (rectangular) flaps, all 15 x 3.7 cm.
+  They don't go in by themselves: their creases hold them tilted outwards.
+    flap_hinge        front tuck flap, crease just inside the front wall.
+                      0 = in line with the lid, 1.57 = tucked. Rests at ~0.8 rad.
+    side_flap_left /  side flaps, creases just inside the side walls.
+    side_flap_right   0 = straight down (tucked), rest at ~0.35 rad outwards.
+  Sizes fit inside when tucked: 15 cm < 15.4 cm between the tucked side flaps,
+  15 cm < 16 cm inside depth, 3.7 cm < 4 cm inside height.
+
+  Sites for task code / rewards:
+    lid_handle     middle of the lid's free (front) edge
+    flap_edge      middle of the front flap's free edge (the handle to pull)
+    box_top        centre of the box opening
+    box_left_side  just outside the middle of the left (+y) wall
+    box_side_stop  left-hand "side stop" point: outside the middle of the left (+y) wall,
+                   1.7 cm out, 2.4 cm above the table (below the wall top). With the left TCP
+                   here (start orientation turned 20 deg about z) the closed fingers wait 5 mm
+                   from the wall. Pinching the flap shoves the box towards +y (4 cm) and turns
+                   it, so the box runs into the fingers and stops (measured: 4.0 -> 0.9 cm).
+                   (The old stop in front of the front wall was never touched: the box never
+                   moves towards the robot.)
+-->
+<mujoco model="cardboard_box">
+  <asset>
+    <texture name="cardboard" type="2d" file="assets/textures/cardboard.png"/>
+    <material name="cardboard" texture="cardboard" texuniform="true" texrepeat="4 4" specular="0.05" shininess="0.05"/>
+    <material name="cardboard_inside" texture="cardboard" texuniform="true" texrepeat="4 4" rgba="0.85 0.85 0.85 1" specular="0"/>
+  </asset>
+
+  <default>
+    <default class="cardboard">
+      <!-- Thin board, 3 mm, same density as the other box models. -->
+      <geom type="box" density="150" material="cardboard" contype="3" conaffinity="3"
+            friction="0.5 0.005 0.0001" solref="0.004 1"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="box" pos="0.32 0 0.721">
+      <freejoint name="box_free"/>
+      <!-- bottom -->
+      <geom name="box_bottom" class="cardboard" size="0.083 0.083 0.0015" pos="0 0 0.0015" material="cardboard_inside"/>
+      <!-- walls: front (robot side, -x), back (+x), left (+y), right (-y) -->
+      <geom name="box_front" class="cardboard" size="0.0015 0.083 0.0215" pos="-0.0815 0 0.0215"/>
+      <geom name="box_back"  class="cardboard" size="0.0015 0.083 0.0215" pos=" 0.0815 0 0.0215"/>
+      <geom name="box_left"  class="cardboard" size="0.080 0.0015 0.0215" pos="0  0.0815 0.0215"/>
+      <geom name="box_right" class="cardboard" size="0.080 0.0015 0.0215" pos="0 -0.0815 0.0215"/>
+      <site name="box_top" pos="0 0 0.045" size="0.006" rgba="0 0.6 1 0.6"/>
+      <site name="box_side_stop" pos="0 0.100 0.024" size="0.008" rgba="1 0.9 0 0.8"/>
+      <site name="box_left_side" pos="0 0.095 0.0215" size="0.008" rgba="0.8 0.2 1 0.8"/>
+
+      <!-- lid: frame sits on the hinge line (top of back wall) -->
+      <body name="lid" pos="0.083 0 0.0445">
+        <!-- frictionloss = the crease holding the lid: it is just below the lid's gravity
+             torque at 30 deg (0.0165 Nm), so the lid stays put above ~37 deg and falls shut
+             by itself below ~35 deg, like the real box (measured, robot not touching).
+             solreffriction/solimpfriction make that friction stiff: with MuJoCo's default
+             (soft) friction the lid crept shut from 40-45 deg within 10 s. Now it creeps
+             about 1 deg in 10 s. A shut lid rests at ~2 deg: the untucked flap sits on the
+             front wall's top edge. -->
+        <joint name="lid_hinge" type="hinge" axis="0 1 0" range="0 2.1"
+               damping="0.005" frictionloss="0.016" armature="0.0005"
+               solreffriction="0.004 1" solimpfriction="0.99 0.999 0.001"/>
+        <geom name="lid" class="cardboard" size="0.083 0.083 0.0015" pos="-0.083 0 0"/>
+        <site name="lid_handle" pos="-0.166 0 0" size="0.008" rgba="1 0.3 0 0.8"/>
+
+        <!-- front tuck flap: crease on the lid's underside, just inside the front wall -->
+        <body name="flap" pos="-0.1613 0 0">
+          <joint name="flap_hinge" type="hinge" axis="0 -1 0" range="-0.5 1.7"
+                 stiffness="0.0017" springref="0.8" damping="0.0007" armature="0.0002"/>
+          <geom name="flap" class="cardboard" size="0.0185 0.075 0.0015" pos="-0.0185 0 0"/>
+          <site name="flap_edge" pos="-0.037 0 0" size="0.006" rgba="0.2 0.8 0.2 0.8"/>
+        </body>
+
+        <!-- side flaps: creases on the lid's underside, just inside the side walls -->
+        <body name="side_flap_left" pos="-0.083 0.0775 0">
+          <joint name="side_flap_left" type="hinge" axis="1 0 0" range="-0.3 1.6"
+                 stiffness="0.0034" springref="0.35" damping="0.0007" armature="0.0002"/>
+          <geom name="side_flap_left" class="cardboard" size="0.075 0.0015 0.0185" pos="0 0 -0.0185"/>
+        </body>
+        <body name="side_flap_right" pos="-0.083 -0.0775 0">
+          <joint name="side_flap_right" type="hinge" axis="-1 0 0" range="-0.3 1.6"
+                 stiffness="0.0034" springref="0.35" damping="0.0007" armature="0.0002"/>
+          <geom name="side_flap_right" class="cardboard" size="0.075 0.0015 0.0185" pos="0 0 -0.0185"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- Side flaps vs the box walls: no contact. They rest tilted outwards, and
+       with contact they land on the side-wall tops and hold the lid up at ~30 deg.
+       On the real box they slip inside as the lid falls shut, so here they just
+       pass the walls. (The front flap still collides: it is the handle.) -->
+  <contact>
+    <exclude body1="box" body2="side_flap_left"/>
+    <exclude body1="box" body2="side_flap_right"/>
+  </contact>
+</mujoco>
